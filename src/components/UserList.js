@@ -13,6 +13,7 @@ import {
   Container,
 } from "react-bootstrap";
 import List from "./List";
+import { BASE_URL } from "../API";
 
 function UserList() {
   const [users, setUsers] = useState([]);
@@ -58,7 +59,7 @@ function UserList() {
   }, []);
   const getFilterOptions = () => {
     axios
-      .get("http://localhost:5000/api/users", {
+      .get(`${BASE_URL}/users`, {
         params: { limit: "", page: "1" },
       })
       .then((res) => {
@@ -90,7 +91,7 @@ function UserList() {
       query.available = false;
     }
     axios
-      .get("http://localhost:5000/api/users", { params: query })
+      .get(`${BASE_URL}/users`, { params: query })
       .then((res) => {
         setUsers(res.data);
       })
@@ -108,7 +109,7 @@ function UserList() {
   };
   const getTeams = () => {
     axios
-      .get("http://localhost:5000/api/team")
+      .get(`${BASE_URL}/team`)
       .then((res) => {
         setTeams(res.data);
       })
@@ -128,7 +129,7 @@ function UserList() {
   };
   const handleOpenUserInfo = (id) => {
     setShowUserModal(true);
-    axios.get(`http://localhost:5000/api/users/${id}`).then((res) => {
+    axios.get(`${BASE_URL}/users/${id}`).then((res) => {
       setUserId(id);
       setFirst_Name(res.data.first_name);
       setLast_Name(res.data.last_name);
@@ -141,7 +142,7 @@ function UserList() {
   };
   const handleOpenEditUser = (id) => {
     setShowEditModal(true);
-    axios.get(`http://localhost:5000/api/users/${id}`).then((res) => {
+    axios.get(`${BASE_URL}/users/${id}`).then((res) => {
       setUserId(res.data.id);
       setFirst_Name(res.data.first_name);
       setLast_Name(res.data.last_name);
@@ -164,7 +165,7 @@ function UserList() {
       avatar: avatar,
     };
     axios
-      .put(`http://localhost:5000/api/users/${userId}`, payload)
+      .put(`${BASE_URL}/users/${userId}`, payload)
       .then(() => {
         getUsers();
         window.alert("Upadated User Info");
@@ -191,7 +192,7 @@ function UserList() {
       avatar: avatar,
     };
     axios
-      .post(`http://localhost:5000/api/users`, payload)
+      .post(`${BASE_URL}/users`, payload)
       .then(() => {
         getUsers();
         window.alert("Added User");
@@ -204,7 +205,7 @@ function UserList() {
   };
   const deleteUser = () => {
     axios
-      .delete(`http://localhost:5000/api/users/${userId}`)
+      .delete(`${BASE_URL}/users/${userId}`)
       .then(() => {
         setShowEditModal(false);
         getUsers();
@@ -241,7 +242,7 @@ function UserList() {
       members: members,
     };
     axios
-      .post("http://localhost:5000/api/team", payload)
+      .post(`${BASE_URL}/team`, payload)
       .then((res) => {
         window.alert("Team Created");
         setOpenTeamModal(false);
@@ -256,7 +257,7 @@ function UserList() {
   };
   const viewTeamDetails = (id) => {
     axios
-      .get(`http://localhost:5000/api/team/${id}`)
+      .get(`${BASE_URL}/team/${id}`)
       .then((res) => {
         setSelectedTeamName(res.data.teamName);
         setSelectedTeamMembers(res.data.members)

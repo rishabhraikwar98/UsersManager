@@ -1,0 +1,1 @@
+export const BASE_URL = "https://usermanager-backend.onrender.com/api"

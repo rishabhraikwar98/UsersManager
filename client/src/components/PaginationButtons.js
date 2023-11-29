@@ -3,7 +3,7 @@ import { Pagination, Button } from 'react-bootstrap';
 
 const PaginationComponent = ({ currentPage, totalPages, onPageChange }) => {
   return (
-    <div style={{justifyContent:"center",display:"flex"}}>
+    <div style={{justifyContent:"center",display:"flex", marginTop:30}}>
     <div style={{display:"flex",justifyContent:"space-evenly", width:"20vw"}}>
       <Button 
         variant="primary"

@@ -1,15 +1,18 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const teamSchema = new mongoose.Schema({
-  name: String,
-  users: [
+  teamName: {
+    type: String,
+    require: true,
+    trim: true,
+  },
+  members: [
     {
       type: Object,
-      ref: 'User'
+      require: true,
+      unique:true,
     }
   ],
-  uniqueDomain: [String],
-  uniqueAvailability: [String]
 });
 
-module.exports = new mongoose.model('Team', teamSchema);;
+module.exports = new mongoose.model("Team", teamSchema);

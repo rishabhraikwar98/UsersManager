@@ -463,12 +463,13 @@ function UserList() {
                       role="status"
                     ></Spinner>
                   </div>
-                ) : <div>
-                  <div style={{justifyContent:"center",display:"flex"}}>
-                  <Image src="https://static.thenounproject.com/png/4143644-200.png"></Image>
-                  </div>
-                  <h2 style={{textAlign:"center"}}>No Data</h2>
-                  </div>}
+                ) : (
+                  <div>
+                    <div style={{ justifyContent: "center", display: "flex" }}>
+                      <Image src="https://static.thenounproject.com/png/4143644-200.png"></Image>
+                    </div>
+                    <h2 style={{ textAlign: "center" }}>No Data</h2>
+                  </div>)}
               </div>
             </div>
           </Col>

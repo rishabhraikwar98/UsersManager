@@ -10,7 +10,7 @@ const PaginationComponent = ({ currentPage, totalPages, onPageChange }) => {
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
       >
-        Previous
+        Prev
       </Button>
       <Button variant='primary'>{currentPage}</Button>
       <Button

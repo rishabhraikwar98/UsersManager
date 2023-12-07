@@ -11,7 +11,7 @@ import {
   Modal,
   Badge,
   Container,
-  Spinner
+  Spinner,
 } from "react-bootstrap";
 import List from "./List";
 import { BASE_URL } from "../API";
@@ -20,7 +20,7 @@ function UserList() {
   const [users, setUsers] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [isLoading,setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(false);
 
   // user Info
   const [first_name, setFirst_Name] = useState("");
@@ -52,7 +52,7 @@ function UserList() {
   const [showTeamsList, setShowTeamsList] = useState(false);
   const [showTeamDetail, setShowTeamDetail] = useState(false);
   const [selectedTeamName, setSelectedTeamName] = useState("");
-  const [selectedTeamMembers,setSelectedTeamMembers] = useState([])
+  const [selectedTeamMembers, setSelectedTeamMembers] = useState([]);
   useEffect(() => {
     getUsers();
   }, [currentPage]);
@@ -92,13 +92,16 @@ function UserList() {
     } else if (availabiltyRef.current.value === "No") {
       query.available = false;
     }
+    setIsLoading(true);
     axios
       .get(`${BASE_URL}/users`, { params: query })
       .then((res) => {
         setUsers(res.data);
+        setIsLoading(false);
       })
       .catch((err) => {
         console.error(err.message);
+        setIsLoading(false);
       });
   };
   const handleSearch = () => {
@@ -262,7 +265,7 @@ function UserList() {
       .get(`${BASE_URL}/team/${id}`)
       .then((res) => {
         setSelectedTeamName(res.data.teamName);
-        setSelectedTeamMembers(res.data.members)
+        setSelectedTeamMembers(res.data.members);
       })
       .catch((e) => {
         console.error(e.message);
@@ -380,82 +383,86 @@ function UserList() {
                   overflowX: "hidden",
                 }}
               >
-                {users && users.length?users.map((user) => (
-                  <Card
-                    style={{
-                      width: "18rem",
-                      margin: 15,
-                      padding: 5,
-                      borderRadius: 15,
-                    }}
-                    key={user.id}
-                  >
-                    <div style={{ justifyContent: "center", display: "flex" }}>
-                      <Image width="100" src={user.avatar}></Image>
-                    </div>
-                    <Card.Body>
-                      <Card.Title>
-                        {user.first_name + " " + user.last_name}
-                      </Card.Title>
-                      <Card.Subtitle style={{ marginBottom: 5 }}>
-                        {user.domain}
-                      </Card.Subtitle>
-                      <Card.Text>{user.email}</Card.Text>
-                      <Card.Text>{user.gender}</Card.Text>
-
-                      <Card.Text
-                        style={{
-                          color: user.available ? "green" : "red",
-                          fontWeight: 500,
-                        }}
-                      >
-                        {user.available ? "Available" : "Not Available"}
-                      </Card.Text>
+                {users && users.length ? (
+                  users.map((user) => (
+                    <Card
+                      style={{
+                        width: "18rem",
+                        margin: 15,
+                        padding: 5,
+                        borderRadius: 15,
+                      }}
+                      key={user.id}
+                    >
                       <div
-                        style={{
-                          justifyContent: "space-between",
-                          display: "flex",
-                        }}
+                        style={{ justifyContent: "center", display: "flex" }}
                       >
-                        <Button
-                          onClick={() => {
-                            handleOpenUserInfo(user.id);
-                          }}
-                          variant="info"
-                          size="sm"
-                        >
-                          View
-                        </Button>
-                        {!members.filter((item) => {
-                          return item.id === user.id;
-                        })[0] ? (
-                          <Button
-                            variant="success"
-                            size="sm"
-                            onClick={() => {
-                              handleMembers(user);
-                            }}
-                          >
-                            Add to Team
-                          </Button>
-                        ) : (
-                          <Button size="sm" disabled variant="light">
-                            Added
-                          </Button>
-                        )}
-                        <Button
-                          onClick={() => {
-                            handleOpenEditUser(user.id);
-                          }}
-                          variant="dark"
-                          size="sm"
-                        >
-                          Edit
-                        </Button>
+                        <Image width="100" src={user.avatar}></Image>
                       </div>
-                    </Card.Body>
-                  </Card>
-                )):isLoading ? (
+                      <Card.Body>
+                        <Card.Title>
+                          {user.first_name + " " + user.last_name}
+                        </Card.Title>
+                        <Card.Subtitle style={{ marginBottom: 5 }}>
+                          {user.domain}
+                        </Card.Subtitle>
+                        <Card.Text>{user.email}</Card.Text>
+                        <Card.Text>{user.gender}</Card.Text>
+
+                        <Card.Text
+                          style={{
+                            color: user.available ? "green" : "red",
+                            fontWeight: 500,
+                          }}
+                        >
+                          {user.available ? "Available" : "Not Available"}
+                        </Card.Text>
+                        <div
+                          style={{
+                            justifyContent: "space-between",
+                            display: "flex",
+                          }}
+                        >
+                          <Button
+                            onClick={() => {
+                              handleOpenUserInfo(user.id);
+                            }}
+                            variant="info"
+                            size="sm"
+                          >
+                            View
+                          </Button>
+                          {!members.filter((item) => {
+                            return item.id === user.id;
+                          })[0] ? (
+                            <Button
+                              variant="success"
+                              size="sm"
+                              onClick={() => {
+                                handleMembers(user);
+                              }}
+                            >
+                              Add to Team
+                            </Button>
+                          ) : (
+                            <Button size="sm" disabled variant="light">
+                              Added
+                            </Button>
+                          )}
+                          <Button
+                            onClick={() => {
+                              handleOpenEditUser(user.id);
+                            }}
+                            variant="dark"
+                            size="sm"
+                          >
+                            Edit
+                          </Button>
+                        </div>
+                      </Card.Body>
+                    </Card>
+                  ))
+                ) : isLoading ? (
                   <div style={{ justifyContent: "center", display: "flex" }}>
                     <Spinner
                       variant="primary"
@@ -469,7 +476,8 @@ function UserList() {
                       <Image src="https://static.thenounproject.com/png/4143644-200.png"></Image>
                     </div>
                     <h2 style={{ textAlign: "center" }}>No Data</h2>
-                  </div>)}
+                  </div>
+                )}
               </div>
             </div>
           </Col>
@@ -796,46 +804,50 @@ function UserList() {
             <Modal.Title>Teams</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            { teams && teams.length?teams.map((team) => {
-              return (
-                <Card
-                  key={team._id}
-                  style={{ marginBottom: 20, marginInline: 10 }}
-                >
-                  <Card.Header>
-                    <Card.Title style={{ fontSize: 24 }}>
-                      {team.teamName}
-                    </Card.Title>
-                  </Card.Header>
-                  <Card.Body
-                    style={{
-                      justifyContent: "space-between",
-                      display: "flex",
-                      alignItems: "center",
-                    }}
+            {teams && teams.length ? (
+              teams.map((team) => {
+                return (
+                  <Card
+                    key={team._id}
+                    style={{ marginBottom: 20, marginInline: 10 }}
                   >
-                    <Card.Subtitle style={{ fontSize: 16 }}>
-                      Memebers: {team.members.length}
-                    </Card.Subtitle>
-                    <Button
-                      size="sm"
-                      variant="primary"
-                      onClick={() => {
-                        viewTeamDetails(team._id);
-                        setShowTeamDetail(true);
+                    <Card.Header>
+                      <Card.Title style={{ fontSize: 24 }}>
+                        {team.teamName}
+                      </Card.Title>
+                    </Card.Header>
+                    <Card.Body
+                      style={{
+                        justifyContent: "space-between",
+                        display: "flex",
+                        alignItems: "center",
                       }}
                     >
-                      View Team
-                    </Button>
-                  </Card.Body>
-                </Card>
-              );
-            }):<div>
-            <div style={{justifyContent:"center",display:"flex"}}>
-            <Image src="https://static.thenounproject.com/png/4143644-200.png"></Image>
-            </div>
-            <h2 style={{textAlign:"center"}}>No Data</h2>
-            </div>}
+                      <Card.Subtitle style={{ fontSize: 16 }}>
+                        Memebers: {team.members.length}
+                      </Card.Subtitle>
+                      <Button
+                        size="sm"
+                        variant="primary"
+                        onClick={() => {
+                          viewTeamDetails(team._id);
+                          setShowTeamDetail(true);
+                        }}
+                      >
+                        View Team
+                      </Button>
+                    </Card.Body>
+                  </Card>
+                );
+              })
+            ) : (
+              <div>
+                <div style={{ justifyContent: "center", display: "flex" }}>
+                  <Image src="https://static.thenounproject.com/png/4143644-200.png"></Image>
+                </div>
+                <h2 style={{ textAlign: "center" }}>No Data</h2>
+              </div>
+            )}
           </Modal.Body>
           <Modal.Footer></Modal.Footer>
         </Modal>
@@ -849,17 +861,23 @@ function UserList() {
           fullscreen
         >
           <Modal.Header closeButton>
-            <Modal.Title style={{fontSize:30}}>{selectedTeamName}</Modal.Title>
+            <Modal.Title style={{ fontSize: 30 }}>
+              {selectedTeamName}
+            </Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            {selectedTeamMembers&& selectedTeamMembers.length? selectedTeamMembers.map((item)=>{
-             return <List key={item._id} member={item}/>
-            }):<div>
-            <div style={{justifyContent:"center",display:"flex"}}>
-            <Image src="https://static.thenounproject.com/png/4143644-200.png"></Image>
-            </div>
-            <h2 style={{textAlign:"center"}}>No Data</h2>
-            </div>}
+            {selectedTeamMembers && selectedTeamMembers.length ? (
+              selectedTeamMembers.map((item) => {
+                return <List key={item._id} member={item} />;
+              })
+            ) : (
+              <div>
+                <div style={{ justifyContent: "center", display: "flex" }}>
+                  <Image src="https://static.thenounproject.com/png/4143644-200.png"></Image>
+                </div>
+                <h2 style={{ textAlign: "center" }}>No Data</h2>
+              </div>
+            )}
           </Modal.Body>
           <Modal.Footer>
             <Button
@@ -867,8 +885,8 @@ function UserList() {
               size="md"
               onClick={() => {
                 setShowTeamDetail(false);
-                setSelectedTeamName("")
-                setSelectedTeamMembers([])
+                setSelectedTeamName("");
+                setSelectedTeamMembers([]);
               }}
             >
               Close

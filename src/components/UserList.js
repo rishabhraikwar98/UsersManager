@@ -11,6 +11,7 @@ import {
   Modal,
   Badge,
   Container,
+  Spinner
 } from "react-bootstrap";
 import List from "./List";
 import { BASE_URL } from "../API";
@@ -19,6 +20,7 @@ function UserList() {
   const [users, setUsers] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [isLoading,setIsLoading] = useState(false)
 
   // user Info
   const [first_name, setFirst_Name] = useState("");
@@ -453,7 +455,15 @@ function UserList() {
                       </div>
                     </Card.Body>
                   </Card>
-                )):<div>
+                )):isLoading ? (
+                  <div style={{ justifyContent: "center", display: "flex" }}>
+                    <Spinner
+                      variant="primary"
+                      animation="border"
+                      role="status"
+                    ></Spinner>
+                  </div>
+                ) : <div>
                   <div style={{justifyContent:"center",display:"flex"}}>
                   <Image src="https://static.thenounproject.com/png/4143644-200.png"></Image>
                   </div>

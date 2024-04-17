@@ -105,10 +105,12 @@ function UserList() {
       });
   };
   const handleSearch = () => {
+    setIsLoading(true);
     setCurrentPage(1);
     getUsers();
   };
   const handleApplyFilter = () => {
+    setIsLoading(true);
     getUsers();
     setCurrentPage(1);
   };
@@ -383,94 +385,128 @@ function UserList() {
                   overflowX: "hidden",
                 }}
               >
-                {users && users.length ? (
-                  users.map((user) => (
-                    <Card
-                      style={{
-                        width: "18rem",
-                        margin: 15,
-                        padding: 5,
-                        borderRadius: 15,
-                      }}
-                      key={user.id}
-                    >
-                      <div
-                        style={{ justifyContent: "center", display: "flex" }}
-                      >
-                        <Image width="100" src={user.avatar}></Image>
-                      </div>
-                      <Card.Body>
-                        <Card.Title>
-                          {user.first_name + " " + user.last_name}
-                        </Card.Title>
-                        <Card.Subtitle style={{ marginBottom: 5 }}>
-                          {user.domain}
-                        </Card.Subtitle>
-                        <Card.Text>{user.email}</Card.Text>
-                        <Card.Text>{user.gender}</Card.Text>
-
-                        <Card.Text
+                {users && users.length && !isLoading
+                  ? users.map((user) => (
+                      <div key={user._id}>
+                        <Card
                           style={{
-                            color: user.available ? "green" : "red",
-                            fontWeight: 500,
+                            width: "18rem",
+                            margin: 15,
+                            padding: 5,
+                            borderRadius: 15,
                           }}
+                          key={user.id}
                         >
-                          {user.available ? "Available" : "Not Available"}
-                        </Card.Text>
-                        <div
-                          style={{
-                            justifyContent: "space-between",
-                            display: "flex",
-                          }}
-                        >
-                          <Button
-                            onClick={() => {
-                              handleOpenUserInfo(user.id);
+                          <div
+                            style={{
+                              justifyContent: "center",
+                              display: "flex",
                             }}
-                            variant="info"
-                            size="sm"
                           >
-                            View
-                          </Button>
-                          {!members.filter((item) => {
-                            return item.id === user.id;
-                          })[0] ? (
-                            <Button
-                              variant="success"
-                              size="sm"
-                              onClick={() => {
-                                handleMembers(user);
+                            <Image width="100" src={user.avatar}></Image>
+                          </div>
+                          <Card.Body>
+                            <Card.Title>
+                              {user.first_name + " " + user.last_name}
+                            </Card.Title>
+                            <Card.Subtitle style={{ marginBottom: 5 }}>
+                              {user.domain}
+                            </Card.Subtitle>
+                            <Card.Text>{user.email}</Card.Text>
+                            <Card.Text>{user.gender}</Card.Text>
+
+                            <Card.Text
+                              style={{
+                                color: user.available ? "green" : "red",
+                                fontWeight: 500,
                               }}
                             >
-                              Add to Team
-                            </Button>
-                          ) : (
-                            <Button size="sm" disabled variant="light">
-                              Added
-                            </Button>
-                          )}
-                          <Button
-                            onClick={() => {
-                              handleOpenEditUser(user.id);
-                            }}
-                            variant="dark"
-                            size="sm"
-                          >
-                            Edit
-                          </Button>
-                        </div>
-                      </Card.Body>
-                    </Card>
-                  ))
-                ) : isLoading ? (
-                  <div style={{ justifyContent: "center", display: "flex" }}>
-                    <Spinner
-                      variant="primary"
-                      animation="border"
-                      role="status"
-                    ></Spinner>
+                              {user.available ? "Available" : "Not Available"}
+                            </Card.Text>
+                            <div
+                              style={{
+                                justifyContent: "space-between",
+                                display: "flex",
+                              }}
+                            >
+                              <Button
+                                onClick={() => {
+                                  handleOpenUserInfo(user.id);
+                                }}
+                                variant="info"
+                                size="sm"
+                              >
+                                View
+                              </Button>
+                              {!members.filter((item) => {
+                                return item.id === user.id;
+                              })[0] ? (
+                                <Button
+                                  variant="success"
+                                  size="sm"
+                                  onClick={() => {
+                                    handleMembers(user);
+                                  }}
+                                >
+                                  Add to Team
+                                </Button>
+                              ) : (
+                                <Button size="sm" disabled variant="light">
+                                  Added
+                                </Button>
+                              )}
+                              <Button
+                                onClick={() => {
+                                  handleOpenEditUser(user.id);
+                                }}
+                                variant="dark"
+                                size="sm"
+                              >
+                                Edit
+                              </Button>
+                            </div>
+                          </Card.Body>
+                        </Card>
+                      </div>
+                    ))
+                  : ""}
+                {isLoading && (
+                  <div
+                    style={{
+                      justifyContent: "center",
+                      display: "flex",
+                      height: "80vh",
+                    }}
+                  >
+                    <div className="my-auto">
+                      <div
+                        class="spinner-grow"
+                        style={{width: "1.2rem", height: "1.2rem"}}
+                        role="status"
+                      >
+                      </div>
+                      <div
+                        class="spinner-grow"
+                        style={{width: "1.2rem", height: "1.2rem"}}
+                        role="status"
+                      >
+                      </div>
+                      <div
+                        class="spinner-grow"
+                        style={{width: "1.2rem", height: "1.2rem"}}
+                        role="status"
+                      >
+                      </div>
+                      <div
+                        class="spinner-grow"
+                        style={{width: "1.2rem", height: "1.2rem"}}
+                        role="status"
+                      >
+                      </div>
+                    </div>
                   </div>
-                ) : (
+                )}
+                {!isLoading && !users.length && (
                   <div>
                     <div style={{ justifyContent: "center", display: "flex" }}>
                       <Image src="https://static.thenounproject.com/png/4143644-200.png"></Image>
@@ -895,13 +931,17 @@ function UserList() {
         </Modal>
         {/* pagination */}
 
-        <PaginationComponent
-          currentPage={currentPage}
-          onPageChange={(page) => {
-            setCurrentPage(page);
-          }}
-          totalPages={totalPages}
-        ></PaginationComponent>
+        {users.length ? (
+          <PaginationComponent
+            currentPage={currentPage}
+            onPageChange={(page) => {
+              setCurrentPage(page);
+            }}
+            totalPages={totalPages}
+          ></PaginationComponent>
+        ) : (
+          ""
+        )}
       </Container>
     </>
   );

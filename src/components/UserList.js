@@ -1,20 +1,26 @@
 import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import PaginationComponent from "./PaginationButtons";
+import { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 import {
-  Card,
   Form,
   Row,
   Col,
   Button,
   Image,
-  Modal,
   Badge,
   Container,
-  Spinner,
 } from "react-bootstrap";
-import List from "./List";
 import { BASE_URL } from "../API";
+import UserCard from "./UserCard";
+import Loading from "react-loading";
+import UserInfoModal from "./modals/UserInfoModal";
+import UserEditModal from "./modals/UserEditModal";
+import TeamMembersModal from "./modals/TeamMembersModal";
+import AddUserModal from "./modals/AddUserModal";
+import TeamsListModal from "./modals/TeamsListModal";
+import TeamDetailModal from "./modals/TeamDetailModal";
 
 function UserList() {
   const [users, setUsers] = useState([]);
@@ -175,7 +181,7 @@ function UserList() {
       .put(`${BASE_URL}/users/${userId}`, payload)
       .then(() => {
         getUsers();
-        window.alert("Upadated User Info");
+        toast.success("User Details Updated!")
         clear();
         setShowEditModal(false);
       })
@@ -202,7 +208,7 @@ function UserList() {
       .post(`${BASE_URL}/users`, payload)
       .then(() => {
         getUsers();
-        window.alert("Added User");
+        toast.success("Added New User!")
         setShowAddModal(false);
       })
       .catch((e) => {
@@ -216,7 +222,7 @@ function UserList() {
       .then(() => {
         setShowEditModal(false);
         getUsers();
-        window.alert("Deleted User");
+        toast.success("Deleted User!");
       })
       .catch((e) => {
         console.error(e.message);
@@ -232,16 +238,16 @@ function UserList() {
       existingArr.push(user);
       setMembers(existingArr);
     } else {
-      window.alert("Add Memebers from diffrent Domain");
+      toast.error("Add Memebers from diffrent Domain!");
       return;
     }
   };
   const createTeam = () => {
     if (!teamName) {
-      window.alert("Must Add Team Name");
+      toast.error("Must Add Team Name!");
       return;
     } else if (!members.length) {
-      window.alert("Must Add Members");
+      toast.error("Must Add Members!");
       return;
     }
     const payload = {
@@ -251,7 +257,7 @@ function UserList() {
     axios
       .post(`${BASE_URL}/team`, payload)
       .then((res) => {
-        window.alert("Team Created");
+        toast.success("New Team Created!");
         setOpenTeamModal(false);
         setMembers([]);
         setTeamName("");
@@ -275,6 +281,7 @@ function UserList() {
   };
   return (
     <>
+    <Toaster position="bottom-center"/>
       <Container>
         <Row
           style={{
@@ -387,87 +394,13 @@ function UserList() {
               >
                 {users && users.length && !isLoading
                   ? users.map((user) => (
-                      <div key={user._id}>
-                        <Card
-                          style={{
-                            width: "18rem",
-                            margin: 15,
-                            padding: 5,
-                            borderRadius: 15,
-                          }}
-                          key={user.id}
-                        >
-                          <div
-                            style={{
-                              justifyContent: "center",
-                              display: "flex",
-                            }}
-                          >
-                            <Image width="100" src={user.avatar}></Image>
-                          </div>
-                          <Card.Body>
-                            <Card.Title>
-                              {user.first_name + " " + user.last_name}
-                            </Card.Title>
-                            <Card.Subtitle style={{ marginBottom: 5 }}>
-                              {user.domain}
-                            </Card.Subtitle>
-                            <Card.Text>{user.email}</Card.Text>
-                            <Card.Text>{user.gender}</Card.Text>
-
-                            <Card.Text
-                              style={{
-                                color: user.available ? "green" : "red",
-                                fontWeight: 500,
-                              }}
-                            >
-                              {user.available ? "Available" : "Not Available"}
-                            </Card.Text>
-                            <div
-                              style={{
-                                justifyContent: "space-between",
-                                display: "flex",
-                              }}
-                            >
-                              <Button
-                                onClick={() => {
-                                  handleOpenUserInfo(user.id);
-                                }}
-                                variant="info"
-                                size="sm"
-                              >
-                                View
-                              </Button>
-                              {!members.filter((item) => {
-                                return item.id === user.id;
-                              })[0] ? (
-                                <Button
-                                  variant="success"
-                                  size="sm"
-                                  onClick={() => {
-                                    handleMembers(user);
-                                  }}
-                                >
-                                  Add to Team
-                                </Button>
-                              ) : (
-                                <Button size="sm" disabled variant="light">
-                                  Added
-                                </Button>
-                              )}
-                              <Button
-                                onClick={() => {
-                                  handleOpenEditUser(user.id);
-                                }}
-                                variant="dark"
-                                size="sm"
-                              >
-                                Edit
-                              </Button>
-                            </div>
-                          </Card.Body>
-                        </Card>
-                      </div>
+                      <UserCard
+                        handleOpenEditUser={handleOpenEditUser}
+                        handleMembers={handleMembers}
+                        user={user}
+                        handleOpenUserInfo={handleOpenUserInfo}
+                        members={members}
+                      />
                     ))
                   : ""}
                 {isLoading && (
@@ -478,31 +411,8 @@ function UserList() {
                       height: "80vh",
                     }}
                   >
-                    <div className="my-auto">
-                      <div
-                        class="spinner-grow"
-                        style={{width: "1.2rem", height: "1.2rem"}}
-                        role="status"
-                      >
-                      </div>
-                      <div
-                        class="spinner-grow"
-                        style={{width: "1.2rem", height: "1.2rem"}}
-                        role="status"
-                      >
-                      </div>
-                      <div
-                        class="spinner-grow"
-                        style={{width: "1.2rem", height: "1.2rem"}}
-                        role="status"
-                      >
-                      </div>
-                      <div
-                        class="spinner-grow"
-                        style={{width: "1.2rem", height: "1.2rem"}}
-                        role="status"
-                      >
-                      </div>
+                    <div className="my-auto d-flex justify-center">
+                      <Loading type="balls" width={70} color="blue" />
                     </div>
                   </div>
                 )}
@@ -519,416 +429,88 @@ function UserList() {
           </Col>
         </Row>
         {/* Show user info */}
-        <Modal
-          size="lg"
-          show={showUserModal}
-          onHide={() => {
-            clear();
-            setShowUserModal(false);
-          }}
-        >
-          <Modal.Header closeButton>
-            <Modal.Title>User Profile</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <Card style={{ height: "42vh" }}>
-              <Card.Body>
-                <Row>
-                  <Col>
-                    <Card.Title style={{ fontSize: 40, marginBottom: 35 }}>
-                      {first_name + " " + last_name}
-                    </Card.Title>
-                    <Card.Subtitle style={{ marginBottom: 20, fontSize: 20 }}>
-                      Domain: {domain}
-                    </Card.Subtitle>
-                    <Card.Text
-                      style={{
-                        fontWeight: 500,
-                        marginBottom: 20,
-                        fontSize: 20,
-                      }}
-                    >
-                      Email: {email}
-                    </Card.Text>
-                    <Card.Text
-                      style={{
-                        fontWeight: 500,
-                        marginBottom: 20,
-                        fontSize: 20,
-                      }}
-                    >
-                      Gender: {gender}
-                    </Card.Text>
-                    <Card.Text style={{ fontWeight: 500, fontSize: 20 }}>
-                      Availabilty Status:{" "}
-                      {available ? "Available" : "Not Available"}
-                    </Card.Text>
-                  </Col>
-                  <Col>
-                    <div style={{ justifyContent: "center", display: "flex" }}>
-                      <Image width="180" height="180" src={avatar}></Image>
-                    </div>
-                  </Col>
-                </Row>
-              </Card.Body>
-            </Card>
-          </Modal.Body>
-        </Modal>
+        <UserInfoModal
+          domain={domain}
+          email={email}
+          available={available}
+          first_name={first_name}
+          last_name={last_name}
+          clear={clear}
+          gender={gender}
+          avatar={avatar}
+          showUserModal={showUserModal}
+          setShowUserModal={setShowUserModal}
+        />
         {/* user edit */}
-        <Modal
-          show={showEditModal}
-          onHide={() => {
-            clear();
-            setShowEditModal(false);
-          }}
-        >
-          <Modal.Header closeButton>
-            <Modal.Title>Update User Info</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <Form.Group>
-              <Form.Label>First Name</Form.Label>
-              <Form.Control
-                value={first_name}
-                onChange={(e) => {
-                  setFirst_Name(e.target.value);
-                }}
-                type="text"
-              ></Form.Control>
-            </Form.Group>
-            <Form.Group>
-              <Form.Label>Last Name</Form.Label>
-              <Form.Control
-                value={last_name}
-                onChange={(e) => {
-                  setLast_Name(e.target.value);
-                }}
-                type="text"
-              ></Form.Control>
-            </Form.Group>
-            <Form.Group>
-              <Form.Label>Email</Form.Label>
-              <Form.Control
-                value={email}
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                }}
-                type="email"
-              ></Form.Control>
-            </Form.Group>
-            <Form.Group>
-              <Form.Label>Gender</Form.Label>
-              <Form.Control
-                value={gender}
-                onChange={(e) => {
-                  setGender(e.target.value);
-                }}
-                type="email"
-              ></Form.Control>
-            </Form.Group>
-            <Form.Group>
-              <Form.Label>Domain</Form.Label>
-              <Form.Control
-                value={domain}
-                onChange={(e) => {
-                  setDomain(e.target.value);
-                }}
-                type="text"
-              ></Form.Control>
-            </Form.Group>
-            <Form.Group>
-              <Form.Label>Availabilty</Form.Label>
-              <Form.Check
-                checked={available}
-                onChange={(e) => {
-                  setAvailable(e.target.checked);
-                }}
-                type="switch"
-              ></Form.Check>
-            </Form.Group>
-            <Form.Group>
-              <Form.Label>Avatar URL</Form.Label>
-              <Form.Control
-                value={avatar}
-                onChange={(e) => {
-                  setAvatar(e.target.value);
-                }}
-                type="email"
-              ></Form.Control>
-            </Form.Group>
-          </Modal.Body>
-          <Modal.Footer>
-            <Button onClick={deleteUser} variant="danger">
-              Delete User
-            </Button>
-            <Button onClick={updateUser} variant="primary">
-              Update Details
-            </Button>
-          </Modal.Footer>
-        </Modal>
-        <Modal
-          show={showAddModal}
-          onHide={() => {
-            clear();
-            setShowAddModal(false);
-          }}
-        >
-          <Modal.Header closeButton>
-            <Modal.Title>Add User</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <Form.Group>
-              <Form.Label>First Name</Form.Label>
-              <Form.Control
-                value={first_name}
-                placeholder="Enter First Name"
-                onChange={(e) => {
-                  setFirst_Name(e.target.value);
-                }}
-                type="text"
-              ></Form.Control>
-            </Form.Group>
-            <Form.Group>
-              <Form.Label>Last Name</Form.Label>
-              <Form.Control
-                value={last_name}
-                placeholder="Enter Last Name"
-                onChange={(e) => {
-                  setLast_Name(e.target.value);
-                }}
-                type="text"
-              ></Form.Control>
-            </Form.Group>
-            <Form.Group>
-              <Form.Label>Email</Form.Label>
-              <Form.Control
-                value={email}
-                placeholder="Enter Email"
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                }}
-                type="email"
-              ></Form.Control>
-            </Form.Group>
-            <Form.Group>
-              <Form.Label>Gender</Form.Label>
-              <Form.Control
-                value={gender}
-                placeholder="Enter Gender"
-                onChange={(e) => {
-                  setGender(e.target.value);
-                }}
-                type="text"
-              ></Form.Control>
-            </Form.Group>
-            <Form.Group>
-              <Form.Label>Domain</Form.Label>
-              <Form.Control
-                value={domain}
-                placeholder="Enter Domain"
-                onChange={(e) => {
-                  setDomain(e.target.value);
-                }}
-                type="text"
-              ></Form.Control>
-            </Form.Group>
-            <Form.Group>
-              <Form.Label>Availabilty</Form.Label>
-              <Form.Check
-                checked={available}
-                onChange={(e) => {
-                  setAvailable(e.target.checked);
-                }}
-                type="switch"
-              ></Form.Check>
-            </Form.Group>
-            <Form.Group>
-              <Form.Label>Avatar URL</Form.Label>
-              <Form.Control
-                value={avatar}
-                placeholder="Enter URL"
-                onChange={(e) => {
-                  setAvatar(e.target.value);
-                }}
-                type="text"
-              ></Form.Control>
-            </Form.Group>
-          </Modal.Body>
-          <Modal.Footer>
-            <Button onClick={addNewUser} variant="primary">
-              Save
-            </Button>
-          </Modal.Footer>
-        </Modal>
-
+        <UserEditModal
+          showEditModal={showEditModal}
+          setShowEditModal={setShowEditModal}
+          domain={domain}
+          setDomain={setDomain}
+          email={email}
+          setEmail={setEmail}
+          available={available}
+          setAvailable={setAvailable}
+          first_name={first_name}
+          setFirst_Name={setFirst_Name}
+          last_name={last_name}
+          setLast_Name={setLast_Name}
+          clear={clear}
+          gender={gender}
+          setGender={setGender}
+          avatar={avatar}
+          setAvatar={setAvatar}
+          updateUser={updateUser}
+          deleteUser={deleteUser}
+        />
+        {/* add user  */}
+        <AddUserModal
+          domain={domain}
+          setDomain={setDomain}
+          email={email}
+          setEmail={setEmail}
+          available={available}
+          setAvailable={setAvailable}
+          first_name={first_name}
+          setFirst_Name={setFirst_Name}
+          last_name={last_name}
+          setLast_Name={setLast_Name}
+          clear={clear}
+          gender={gender}
+          setGender={setGender}
+          avatar={avatar}
+          setAvatar={setAvatar}
+          showAddModal={showAddModal}
+          setShowAddModal={setShowAddModal}
+          addNewUser={addNewUser}
+        />
         {/* Team Modal */}
-        <Modal
-          size="lg"
-          backdrop="static"
-          show={openTeamModal}
-          onHide={() => {
-            setOpenTeamModal(false);
-            setTeamName("");
-          }}
-          scrollable
-        >
-          <Modal.Header closeButton>
-            <Modal.Title>Team Members</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <Row>
-              <Col>
-                <Form.Group>
-                  <Form.Label>Team Name:</Form.Label>
-                  <Form.Control
-                    value={teamName}
-                    autoFocus
-                    placeholder="Enter Team Name"
-                    onChange={(e) => {
-                      setTeamName(e.target.value);
-                    }}
-                    type="text"
-                  ></Form.Control>
-                </Form.Group>
-              </Col>
-            </Row>
-            {members.length ? (
-              <div>
-                <Row>
-                  <Col>
-                    {members.map((member) => {
-                      return <List key={member._id} member={member} />;
-                    })}
-                  </Col>
-                </Row>
-              </div>
-            ) : (
-              <div>
-                <div style={{ justifyContent: "center", display: "flex" }}>
-                  <Image src="https://static.thenounproject.com/png/4143644-200.png"></Image>
-                </div>
-                <h5 style={{ textAlign: "center" }}>Add Memebers</h5>
-              </div>
-            )}
-          </Modal.Body>
-          <Modal.Footer>
-            <Button
-              variant="secondary"
-              onClick={() => {
-                setMembers([]);
-                setOpenTeamModal(false);
-                setTeamName("");
-              }}
-            >
-              Cancel
-            </Button>
-            <Button onClick={createTeam} variant="primary">
-              Create Team
-            </Button>
-          </Modal.Footer>
-        </Modal>
+        <TeamMembersModal
+          members={members}
+          setMembers={setMembers}
+          openTeamModal={openTeamModal}
+          setOpenTeamModal={setOpenTeamModal}
+          teamName={teamName}
+          setTeamName={setTeamName}
+          createTeam={createTeam}
+        />
         {/* View Teams List */}
-        <Modal
-          size="lg"
-          show={showTeamsList}
-          onHide={() => {
-            setShowTeamsList(false);
-          }}
-          scrollable
-        >
-          <Modal.Header closeButton>
-            <Modal.Title>Teams</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            {teams && teams.length ? (
-              teams.map((team) => {
-                return (
-                  <Card
-                    key={team._id}
-                    style={{ marginBottom: 20, marginInline: 10 }}
-                  >
-                    <Card.Header>
-                      <Card.Title style={{ fontSize: 24 }}>
-                        {team.teamName}
-                      </Card.Title>
-                    </Card.Header>
-                    <Card.Body
-                      style={{
-                        justifyContent: "space-between",
-                        display: "flex",
-                        alignItems: "center",
-                      }}
-                    >
-                      <Card.Subtitle style={{ fontSize: 16 }}>
-                        Memebers: {team.members.length}
-                      </Card.Subtitle>
-                      <Button
-                        size="sm"
-                        variant="primary"
-                        onClick={() => {
-                          viewTeamDetails(team._id);
-                          setShowTeamDetail(true);
-                        }}
-                      >
-                        View Team
-                      </Button>
-                    </Card.Body>
-                  </Card>
-                );
-              })
-            ) : (
-              <div>
-                <div style={{ justifyContent: "center", display: "flex" }}>
-                  <Image src="https://static.thenounproject.com/png/4143644-200.png"></Image>
-                </div>
-                <h2 style={{ textAlign: "center" }}>No Data</h2>
-              </div>
-            )}
-          </Modal.Body>
-          <Modal.Footer></Modal.Footer>
-        </Modal>
-
+        <TeamsListModal
+          showTeamsList={showTeamsList}
+          setShowTeamsList={setShowTeamsList}
+          teams={teams}
+          viewTeamDetails={viewTeamDetails}
+          setShowTeamDetail={setShowTeamDetail}
+        />
         {/* Team Details */}
-        <Modal
-          show={showTeamDetail}
-          onHide={() => {
-            setShowTeamDetail(false);
-          }}
-          fullscreen
-        >
-          <Modal.Header closeButton>
-            <Modal.Title style={{ fontSize: 30 }}>
-              {selectedTeamName}
-            </Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            {selectedTeamMembers && selectedTeamMembers.length ? (
-              selectedTeamMembers.map((item) => {
-                return <List key={item._id} member={item} />;
-              })
-            ) : (
-              <div>
-                <div style={{ justifyContent: "center", display: "flex" }}>
-                  <Image src="https://static.thenounproject.com/png/4143644-200.png"></Image>
-                </div>
-                <h2 style={{ textAlign: "center" }}>No Data</h2>
-              </div>
-            )}
-          </Modal.Body>
-          <Modal.Footer>
-            <Button
-              variant="secondary"
-              size="md"
-              onClick={() => {
-                setShowTeamDetail(false);
-                setSelectedTeamName("");
-                setSelectedTeamMembers([]);
-              }}
-            >
-              Close
-            </Button>
-          </Modal.Footer>
-        </Modal>
+        <TeamDetailModal
+          showTeamDetail={showTeamDetail}
+          setShowTeamDetail={setShowTeamDetail}
+          selectedTeamName={selectedTeamName}
+          setSelectedTeamName={setSelectedTeamName}
+          selectedTeamMembers={selectedTeamMembers}
+          setSelectedTeamMembers={setSelectedTeamMembers}
+        />
         {/* pagination */}
 
         {users.length ? (

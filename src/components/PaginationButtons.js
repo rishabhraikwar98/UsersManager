@@ -1,5 +1,5 @@
 import React from 'react';
-import { Pagination, Button } from 'react-bootstrap';
+import { Button } from 'react-bootstrap';
 
 const PaginationComponent = ({ currentPage, totalPages, onPageChange }) => {
   return (
